@@ -1,0 +1,665 @@
+openapi: 3.0.0
+info:
+  title: 스마트 커뮤니티 케어 시스템 API
+  description: 지역사회에서 독거노인 및 취약 계층을 위한 커뮤니티 케어 연계 서비스를 제공하는 API.
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080/api
+    description: 로컬 개발 서버
+
+paths:
+  /users:
+    post:
+      summary: 회원가입
+      tags:
+        - 사용자 관리
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: unicorn1009
+                password:
+                  type: string
+                  example: PassW0rD!
+                name:
+                  type: string
+                  example: 김건국
+                role:
+                  type: string
+                  example: 봉사자
+                email:
+                  type: string
+                  example: kunicorn0105@konkuk.ac.kr
+
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Invalid request
+
+  /users/login:
+    get:
+      tags:
+        - 사용자 관리
+      summary: 로그인
+      description: ''
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "{username}"
+        '400':
+          description: 정확하지 않은 ID 또는 Password
+
+  /users/logout:
+    get:
+      tags:
+        - 사용자 관리
+      summary: 현재 로그인된 유저의 세션 로그아웃
+      description: ''
+      operationId: logoutUser
+      parameters: []
+      responses:
+        default:
+          description: successful operation
+
+  /users/{username}:
+    get:
+      summary: 유저 프로파일 불러오기
+      tags:
+        - 사용자 관리
+      description: 로그인된 사용자로부터만 수행 가능.
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: '불러오고자 하는 유저의 username'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/x-www-form-urlencoded:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized. Login is required
+        '403':
+          description: Invalid username supplied. Users can access only themselves
+
+    put:
+      tags:
+        - 사용자 관리
+      summary: 유저 정보 업데이트
+      description: 로그인된 사용자로부터만 수행 가능.
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          description: 정보를 업데이트 하고자 하는 유저의 username
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: PassW0rD!
+                name:
+                  type: string
+                  example: 김건국
+                role:
+                  type: string
+                  example: 봉사자
+                email:
+                  type: string
+                  example: kunicorn0105@konkuk.ac.kr
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized. Login is required
+        '403':
+          description: Invalid username supplied. Users can access only themselves
+
+    delete:
+      tags:
+        - 사용자 관리
+      summary: 유저 삭제
+      description: 로그인된 사용자로부터만 수행 가능.
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          description: 삭제하고자 하는 유저의 username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized. Login is required
+        '403':
+          description: Invalid username supplied. Users can access only themselves
+
+
+  /volunteer-activities:
+    get:
+      summary: 모든 봉사 활동 조회
+      description: 등록된 모든 봉사 활동 목록을 조회합니다.
+      tags:
+        - 봉사활동
+      responses:
+        '200':
+          description: 봉사 활동 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    example: 2024-10-08 07:30:20 PM
+                  count:
+                    type: integer
+                    example: 2
+                  activities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        description:
+                          type: string
+                    example: [{ "id": 13, "description": "봉사활동" }, { "id": 3043657, "description": "사랑나눔열린음악회 풍선장식꾸미기" }]
+
+  /volunteer-activities/{id}:
+    get:
+      summary: 봉사 활동 ID로 조회
+      description: ID를 기준으로 특정 봉사 활동의 상세 정보를 조회합니다.
+      tags:
+        - 봉사활동
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 봉사 활동 상세 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolunteerProgram'
+
+        '404':
+          description: 봉사 활동 조회 실패
+
+  /senior-center-services:
+    get:
+      summary: 모든 시니어 문화생활 조회
+      description: 등록된 모든 시니어 문화생활 목록을 조회합니다.
+      tags:
+        - 시니어 문화생활
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [문화시설, 자연, 쇼핑시설]
+      responses:
+        '200':
+          description: 노인복지관 서비스 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [문화시설, 자연, 쇼핑시설]
+                  count:
+                    type: integer
+                    example: 1
+                  activities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        description:
+                          type: string
+                    example: [{ "id": 141, "description": "현대이용원" }, { "id": 145, "description": "호수목욕탕" }]
+
+
+  /senior-center-services/{id}:
+    get:
+      summary: 시니어 문화생활 ID로 조회
+      description: ID를 기준으로 특정 시니어 문화생활의 상세 정보를 조회합니다.
+      tags:
+        - 시니어 문화생활
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 노인복지관 서비스 상세 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeniorCenter'
+        '404':
+          description: 노인복지관 서비스 조회 실패
+
+  /clothing-recycling-bins:
+    get:
+      summary: 인근 의류수거함 조회
+      description: 사용자의 위치 근처에 있는 의류수거함 목록을 조회합니다.
+      tags:
+        - 의류 수거함
+      parameters:
+        - name: latitude
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 37.541874029290504
+        - name: longtitue
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 127.07868947184076
+      responses:
+        '200':
+          description: 의류수거함 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  coordinate:
+                    $ref: '#/components/schemas/Coordinate'
+                  count:
+                    type: integer
+                    example: 1
+                  bins:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        description:
+                          type: string
+                    example: [{ "id": 1, "행정동": "중곡1동" },]
+
+  /clothing-recycling-bins/{id}:
+    get:
+      summary: 의류수거함 위치 정보 수정
+      description: ID를 기준으로 특정 의류수거함 위치 정보를 수정합니다.
+      tags:
+        - 의류 수거함
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 의류수거함 위치 정보 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClothBinInfo'
+
+  /matching:
+    get:
+      summary: 매칭 정보 조회
+      description: 현재 진행 중인 모든 매칭 정보를 조회합니다.
+      tags:
+        - 자원봉사자와 수혜자 매칭
+      responses:
+        '200':
+          description: 매칭 정보 조회 성공
+    post:
+      summary: 새로운 매칭 생성
+      description: 봉사자와 수혜자를 매칭하는 새로운 매칭 정보를 생성합니다.
+      tags:
+        - 자원봉사자와 수혜자 매칭
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                volunteerId:
+                  type: string
+                beneficiaryId:
+                  type: string
+      responses:
+        '201':
+          description: 새로운 매칭 생성 성공
+  /matching/{id}:
+    get:
+      summary: 매칭 ID로 조회
+      description: ID를 기준으로 특정 매칭의 상세 정보를 조회합니다.
+      tags:
+        - 자원봉사자와 수혜자 매칭
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 매칭 상세 정보 조회 성공
+        '404':
+          description: 매칭 조회 실패
+    put:
+      summary: 매칭 정보 수정
+      description: ID를 기준으로 매칭 정보를 수정합니다.
+      tags:
+        - 자원봉사자와 수혜자 매칭
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                volunteerId:
+                  type: string
+                beneficiaryId:
+                  type: string
+      responses:
+        '200':
+          description: 매칭 정보 수정 성공
+    delete:
+      summary: 매칭 삭제
+      description: ID를 기준으로 특정 매칭 정보를 삭제합니다.
+      tags:
+        - 자원봉사자와 수혜자 매칭
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 매칭 삭제 성공
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        email:
+          type: string
+      required:
+        - name
+        - role
+        - email
+
+    Matching:
+      type: object
+      properties:
+        id:
+          type: string
+        volunteerId:
+          type: string
+        beneficiaryId:
+          type: string
+      required:
+        - volunteerId
+        - beneficiaryId
+
+    VolunteerProgram:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "프로그램등록번호(ID)"
+          example: "3043657"
+        actWkdy:
+          type: string
+          description: "활동요일 (월, 화, 수, 목, 금, 토, 일)"
+          enum: [월, 화, 수, 목, 금, 토, 일]
+          example: ["월", "화", "수"]
+        appTotal:
+          type: integer
+          description: "신청인원수"
+          example: 0
+        adultPosblAt:
+          type: string
+          description: "성인 가능 여부"
+          example: "Y"
+        yngbgsPosblAt:
+          type: string
+          description: "청소년 가능 여부"
+          example: "N"
+        grpPosblAt:
+          type: string
+          description: "단체 가능 여부"
+          example: "N"
+        mnnstNm:
+          type: string
+          description: "모집기관(주관기관명)"
+          example: "광명시립소하노인종합복지관"
+        nanmmbyNm:
+          type: string
+          description: "등록기관(나눔주체명)"
+          example: "경기도 광명시"
+        actPlace:
+          type: string
+          description: "봉사장소"
+          example: "소하노인종합복지관 6층 경로식당3층"
+        nanmmbyNmAdmn:
+          type: string
+          description: "담당자명"
+          example: ""
+        telno:
+          type: string
+          description: "전화번호"
+          example: "070-5089-3272"
+        fxnum:
+          type: string
+          description: "FAX번호"
+          example: ""
+        postAdres:
+          type: string
+          description: "우편번호_주소"
+          example: "경기도 광명시 소하로 25 (소하1동)"
+        email:
+          type: string
+          description: "이메일"
+          example: "abc@naver.com"
+        progrmCn:
+          type: string
+          description: "내용"
+          example: "사랑나눔열린음악회 풍선장식꾸미기"
+        progrmSj:
+          type: string
+          description: "봉사제목"
+          example: "광명시립 소하노인종합복지관 경로식당 자원봉사자 모집"
+        progrmSttusSe:
+          type: string
+          description: "모집상태"
+          example: "2"
+        progrmBgnde:
+          type: string
+          description: "봉사기간(시작일)"
+          example: "20231005"
+        progrmEndde:
+          type: string
+          description: "봉사기간(종료일)"
+          example: "20231231"
+        actBeginTm:
+          type: integer
+          description: "봉사시간(시작시간)"
+          example: 9
+        actEndTm:
+          type: integer
+          description: "봉사시간(종료시간)"
+          example: 13
+        noticeBgnde:
+          type: string
+          description: "모집기간(시작일)"
+          example: "20231005"
+        noticeEndde:
+          type: string
+          description: "모집기간(종료일)"
+          example: "20231231"
+        rcritNmpr:
+          type: integer
+          description: "모집인원(총인원)"
+          example: 2
+        sidoCd:
+          type: string
+          description: "시도코드"
+          example: "6410000"
+        gugunCd:
+          type: string
+          description: "시군구코드"
+          example: "3900000"
+
+    SeniorCenter:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "145"
+          description: "고유 식별 ID"
+        MLSFC_NM:
+          type: string
+          example: "문화시설"
+          description: "중분류 이름"
+        FCLTY_NM:
+          type: string
+          example: "호수목욕탕"
+          description: "시설 이름"
+        CTPRVN_CD:
+          type: string
+          example: "11"
+          description: "시/도 코드"
+        SIGNGU_CD:
+          type: string
+          example: "11215"
+          description: "구/군 코드"
+        LEGALDONG_CD:
+          type: string
+          example: "1121510100"
+          description: "법정동 코드"
+        FCLTY_ROAD_NM_ADDR:
+          type: string
+          example: "서울특별시 광진구 긴고랑로42길 3-31 (중곡동)"
+          description: "시설 도로명 주소"
+        BULD_NM:
+          type: string
+          example: "효수목욕탕"
+          description: "건물 이름"
+        TEL_NO:
+          type: string
+          example: "24443111"
+          description: "전화번호"
+        HMPG_URL:
+          type: string
+          example: "-"
+          description: "홈페이지 URL"
+        FCLTY_LA:
+          type: number
+          format: float
+          example: 127.0945328
+          description: "시설 위도"
+        FCLTY_LO:
+          type: number
+          format: float
+          example: 37.55911204
+          description: "시설 경도"
+          
+    Coordinate:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 37.52972506913911
+        longitude:
+          type: number
+          format: double
+          example: 127.07014931903332
+
+    ClothBinInfo:
+      type: object
+      properties:
+        LEGALDONG_NM:
+          type: string
+          example: "중곡1동"
+          description: "행정동 이름"
+        LNM_ADDR:
+          type: string
+          example: "중곡동 645-8"
+          description: "지번 주소"
+        FCLTY_ROAD_NM_ADDR:
+          type: string
+          example: "천호대로107길 52-6"
+          description: "도로명 주소"
+        coordinate:
+          $ref: '#/components/schemas/Coordinate'
