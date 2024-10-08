@@ -24,16 +24,25 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                username:
                   type: string
-                age:
-                  type: integer
-                mood:
+                  example: unicorn0105
+                firstName:
                   type: string
-              example:
-                name: John Doe
-                age: 28
-                mood: neutral
+                  example: 건국
+                lastName:
+                  type: string
+                  example: 김
+                email:
+                  type: string
+                  example: kunicorn0105@konkuk.ac.kr
+                password:
+                  type: string
+                  example: 'PassW0rD!'
+                phone:
+                  type: string
+                  example: '010-0000-1234'
+
       responses:
         '201':
           description: User created successfully
@@ -67,6 +76,7 @@ paths:
             application/json:
               schema:
                 type: string
+                example: "{userID}"
         '400':
           description: 정확하지 않은 ID 또는 Password
 
@@ -124,14 +134,30 @@ paths:
           schema:
             type: string
       requestBody:
-        description: 기존 유저의 정보 업데이트
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: 건국
+                lastName:
+                  type: string
+                  example: 김
+                email:
+                  type: string
+                  example: kunicorn0105@konkuk.ac.kr
+                password:
+                  type: string
+                  example: 'PassW0rD!'
+                new_password:
+                  type: string
+                  example: 'paSSW0Rd@'
+                phone:
+                  type: string
+                  example: '010-0000-1235'
       responses:
         '200':
           description: Successful operation
@@ -510,29 +536,24 @@ components:
           example: 10
         username:
           type: string
-          example: theUser
+          example: unicorn0105
         firstName:
           type: string
-          example: John
+          example: 건국
         lastName:
           type: string
-          example: James
+          example: 김
         email:
           type: string
-          example: john@email.com
+          example: kunicorn0105@konkuk.ac.kr
         password:
           type: string
-          example: '12345'
+          example: ''
         phone:
           type: string
-          example: '12345'
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
-      xml:
-        name: user
+          example: '010-0000-1234'
+        usersLastStatus:
+          $ref: '#/components/schemas/MentalState'
 
     MentalState:
       type: object
