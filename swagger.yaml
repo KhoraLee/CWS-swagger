@@ -275,7 +275,7 @@ paths:
             type: number
             format: double
             example: 37.541874029290504
-        - name: longtitue
+        - name: longitude
           in: query
           required: true
           schema:
@@ -339,7 +339,7 @@ paths:
             type: number
             format: double
             example: 37.541874029290504
-        - name: longtitue
+        - name: longitude
           in: query
           required: true
           schema:
@@ -374,7 +374,7 @@ paths:
             type: number
             format: double
             example: 37.541874029290504
-        - name: longtitue
+        - name: longitude
           in: query
           required: true
           schema:
@@ -411,7 +411,7 @@ paths:
             type: number
             format: double
             example: 37.541874029290504
-        - name: longtitue
+        - name: longitude
           in: query
           required: true
           schema:
@@ -448,7 +448,7 @@ paths:
             type: number
             format: double
             example: 37.541874029290504
-        - name: longtitue
+        - name: longitude
           in: query
           required: true
           schema:
@@ -578,7 +578,7 @@ components:
           type: number
           format: double
           example: 37.52972506913911
-        longtitue:
+        longitude:
           type: number
           format: double
           example: 127.07014931903332
